@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en-US">
+
+<head>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap"
+		rel="stylesheet">
+	<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+	<title>Invoice</title>
+	<meta name="description" content="Invoice">
+	<style>
+		@keyframes backgroundAnimation {
+			0% {
+				background-position: 100% 0;
+			}
+
+			100% {
+				background-position: 0 0;
+			}
+		}
+	</style>
+</head>
+
+<body
+	style="font-family: 'Poppins',Google Sans, sans-serif;background: url('https://archeyewindoors.com/assets/images/bg-abs-process.webp'), linear-gradient(180deg, rgba(255, 116, 60, 0.17) 0%, rgba(26, 26, 26, 0.04) 100%) fixed;animation: backgroundAnimation 15s linear infinite alternate;background-size: 120% auto; background-color: #fff6f2;">
+	<div
+		style="width: 90%; max-width: 800px; margin:0 auto; box-sizing: border-box; padding: 20px;background: #2D3652;border-radius: 20px; box-shadow: 10px 10px 10px #0001;">
+		<table style="width: 100%;">
+			<thead>
+				<tr>
+					<th style="text-align: left;"> <img src="https://i.ibb.co/S3bCtLh/family-vibes.png"	alt="Family Vibes" height="60"></th>
+					<th style="text-align: right;">
+						<h1 style="text-transform: uppercase;font-size: 3rem;color: #fff;margin: 0;font-weight: 600;">
+							Invoice</h1>
+					</th>
+				</tr>
+			</thead>
+		</table>
+		<hr style="border:none; border-top: 1px solid #fff;opacity: .4;">
+		<div id="content" style="color: #fff;padding: 8px 0;">
+			<p style="margin: 0;margin-bottom: 6px;"> Hello <strong><%= order?.address?.name  %></strong>,</p>
+			<p style="margin: 0; margin-bottom: 20px;"> Your invoice is ₹<strong><%= order?.price  %></strong>,
+				<strong><%= order?.date  %></strong>.
+			</p>
+			<table style="width: 100%; color: #2D3652;">
+				<tr>
+					<td>
+						<table
+							style="width: 100%;background: #fff;box-shadow: 0 0 10px #0001;padding: 0px;overflow: hidden; border-radius: 10px;">
+							<thead>
+								<tr>
+									<th colspan="2" style="background-color: #2D3652; border-radius: 8px 8px 0 0;">
+										<h3
+											style="font-weight: 600;font-size: 1.2rem; margin: 0;color: #fff;padding: 8px 0;">
+											SHIPPING DETAILS</h3>
+									</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<th style="text-align: left; width: 100px;padding: 10px 15px 5px 15px ;">Address
+									</th>
+									<td style="padding-top: 10px;"> <i><%= order?.address?.street  %></i> </td>
+								</tr>
+								<tr>
+									<th style="text-align: left; width: 100px;padding: 0 0 5px 15px;">City</th>
+									<td> <i><%= order?.address?.city  %></i> </td>
+								</tr>
+								<tr>
+									<th style="text-align: left; width: 100px;padding: 0 0 5px 15px;">State</th>
+									<td> <i><%= order?.address?.state  %></i> </td>
+								</tr>
+								<tr>
+									<th style="text-align: left; width: 100px;padding: 0 0 5px 15px;">Country</th>
+									<td> <i><%= order?.address?.country  %></i> </td>
+								</tr>
+								<tr>
+									<th style="text-align: left; width: 100px;padding: 0 0px 10px 15px;">Pincode</th>
+									<td style="padding-bottom: 10px;"> <i><%= order?.address?.pincode  %></i> </td>
+								</tr>
+							</tbody>
+						</table>
+						<table
+							style="width: 100%;margin-top: 18px;background: #fff;box-shadow: 0 0 10px #0001;padding: 0px;overflow: hidden; border-radius: 10px;">
+							<thead>
+								<tr>
+									<th colspan="2" style="background-color: #2D3652; border-radius: 8px 8px 0 0;">
+										<h3
+											style="font-weight: 600;font-size: 1.2rem;  margin: 0;color: #fff;padding: 8px 0;">
+											ORDER DETAILS</h3>
+									</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<th style="text-align: left; width: 100px;padding: 10px 15px 5px 15px ;">Order ID
+									</th>
+									<td style="padding-top: 10px;"> <i><%= order?._id  %></i> </td>
+								</tr>
+								<tr>
+									<th style="text-align: left; width: 100px;padding: 0 0px 10px 15px;">Total </th>
+									<td style="padding-bottom: 10px;"> Rs <i><%= order?.price  %></i> </td>
+								</tr>
+							</tbody>
+						</table>
+					</td>
+				</tr>
+			</table>
+			<table
+				style="width:100%;box-sizing: border-box; background: #fff;box-shadow: 0 0 10px #0001;padding: 0px;border-radius: 10px; margin-top: 18px;">
+				<thead>
+					<tr>
+						<th colspan="2" style="background-color: #2D3652; border-radius: 8px 8px 0 0;">
+							<h3 style="font-weight: 600;font-size: 1.2rem;  margin: 0;color: #fff;padding: 8px 0;">
+								FRAMES</h3>
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+
+					<tr>
+						<td style="padding: 15px; text-align: center;">
+							<% for (item of order.products) { %>
+								<img style="margin-right: 10px;"src="<%= item.frame %>" alt="" width="50" height="50" />
+							  <% } %>							
+							
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			<p style="padding: 10px 0 0 0;text-align: center;margin-bottom: 0;color:#ddd">
+				Copyright <i>CURRENT_YEAR</i> &copy; Family Vibes. All rights reserved.
+			</p>
+		</div>
+	</div>
+</body>
+
+</html>
