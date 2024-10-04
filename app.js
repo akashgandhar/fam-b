@@ -1544,6 +1544,6 @@ app.post("/promo/orderId", verifyUserJWTToken, async (req, res) => {
       .json(createErrorResponse(messages.promoNotFound));
 });
 
-server.listen(8001, () => {
+server.listen(PORT, () => {
   console.log(`Server is listing on PORT ${PORT}`);
 });
