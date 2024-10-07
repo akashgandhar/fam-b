@@ -20,12 +20,29 @@ import { createAuth, doShipment } from "./helpers/shipment.js";
 import Frame from "./models/size.model.js";
 import Colors from "./models/color.modal.js";
 import GiftCard from "./models/giftcard.modal.js";
-import FrameNumber from "./models/framenumber.model.js";
+// import FrameNumber from "./models/framenumber.model.js";
 import fs from "fs";
 import { body, check, validationResult } from "express-validator";
 import { v2 as cloudinary } from "cloudinary";
 // import Busboy from 'busboy';
 import multer from "multer";
+import mongoose from 'mongoose';
+
+const frameNumberSchema = new mongoose.Schema({
+    'imageUrl': String,
+    'name': String,
+    'numberOfFrames': Number,
+    'price': Number,
+    'comparePrice': Number,
+    'description': String,
+    'description2': String,
+    'additionalImages': [Object],
+    'type': String,
+}, { timestamps: true });
+
+const FrameNumber = mongoose.model('FrameNumber', frameNumberSchema); // Create the model
+
+
 const upload = multer({ dest: "uploads/" });
 const CONTACT_US_EMAIL = process.env.CONTACT_US_EMAIL;
 
