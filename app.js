@@ -26,7 +26,7 @@ import { body, check, validationResult } from "express-validator";
 import { v2 as cloudinary } from "cloudinary";
 // import Busboy from 'busboy';
 import multer from "multer";
-import mongoose from 'mongoose';
+
 
 const frameNumberSchema = new mongoose.Schema({
     'imageUrl': String,
