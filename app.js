@@ -165,8 +165,8 @@ app.delete("/deleteGiftCardFrames/:id", async (req, res) => {
 
 app.post("/addGiftCardFrames", async (req, res) => {
   try {
-    const { size } = req.body;
-    const newFrame = new GiftCardSize({ size });
+    const { size, price } = req.body;
+    const newFrame = new GiftCardSize({ size, price });
     await newFrame.save();
     res.status(200).json({ message: "Frame size added successfully" });
   } catch (error) {
