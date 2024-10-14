@@ -1205,27 +1205,7 @@ app.post("/order/bookprod", async (req, res) => {
 
   try {
     console.log("Creating order...");
-    const order = await new OrderModel2({
-      cart: [product], // Assuming a single product for now
-      address: {
-        email: address.email || "",
-        name: address.name || "",
-        lastName: address.lastName || "",
-        city: address.city || "",
-        pincode: address.pincode || "",
-        state: address.state || "",
-        phone: address.phone || "",
-        country: address.country || "",
-        street: address.street || "",
-      },
-      paymentType,
-    }).save();
-    console.log("order", order);
-    console.log("Initiating shipment...");
-    console.log("Order created:", order);
-    console.log(
-      "................>>>>>>>............................................."
-    );
+
     await freeOrderShipMentProduct(order);
 
     console.log("Initiating payment...");
@@ -1239,6 +1219,32 @@ app.post("/order/bookprod", async (req, res) => {
         response.data.instrumentResponse.type === "PAY_PAGE"
       ) {
         const redirectInfo = response.data.instrumentResponse.redirectInfo;
+
+        if (statusCode.success) {
+          const order = await new OrderModel2({
+            cart: [product], // Assuming a single product for now
+            address: {
+              email: address.email || "",
+              name: address.name || "",
+              lastName: address.lastName || "",
+              city: address.city || "",
+              pincode: address.pincode || "",
+              state: address.state || "",
+              phone: address.phone || "",
+              country: address.country || "",
+              street: address.street || "",
+            },
+            paymentType,
+          }).save();
+
+          console.log("order", order);
+          console.log("Initiating shipment...");
+          console.log("Order created:", order);
+          console.log(
+            "................>>>>>>>............................................."
+          );
+        }
+
         return res.status(statusCode.success).json(
           createSuccessResponse(messages.paymentInitiate, {
             redirectUrl: redirectInfo.url,
