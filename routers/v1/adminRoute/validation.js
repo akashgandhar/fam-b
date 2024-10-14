@@ -140,7 +140,7 @@ export const homepageEditValidation = yup.object({
 
 export const testimonialAddValidation = yup.object({
     body: yup.object({
-        media: yup.string().required(),
+        media: yup.string()
         text: yup.string()
     })
 });
