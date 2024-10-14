@@ -1220,30 +1220,7 @@ app.post("/order/bookprod", async (req, res) => {
       ) {
         const redirectInfo = response.data.instrumentResponse.redirectInfo;
 
-        if (statusCode.success) {
-          const order = await new OrderModel2({
-            cart: [product], // Assuming a single product for now
-            address: {
-              email: address.email || "",
-              name: address.name || "",
-              lastName: address.lastName || "",
-              city: address.city || "",
-              pincode: address.pincode || "",
-              state: address.state || "",
-              phone: address.phone || "",
-              country: address.country || "",
-              street: address.street || "",
-            },
-            paymentType,
-          }).save();
-
-          console.log("order", order);
-          console.log("Initiating shipment...");
-          console.log("Order created:", order);
-          console.log(
-            "................>>>>>>>............................................."
-          );
-        }
+        
 
         return res.status(statusCode.success).json(
           createSuccessResponse(messages.paymentInitiate, {
@@ -1251,6 +1228,7 @@ app.post("/order/bookprod", async (req, res) => {
           })
         );
       } else {
+        
         return res
           .status(statusCode.success)
           .json(createSuccessResponse(messages.paymentInitiate, response.data));
