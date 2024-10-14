@@ -1220,15 +1220,29 @@ app.post("/order/bookprod", async (req, res) => {
       ) {
         const redirectInfo = response.data.instrumentResponse.redirectInfo;
 
-        
+        const d = {
+          cart: [product], // Assuming a single product for now
+          address: {
+            email: address.email || "",
+            name: address.name || "",
+            lastName: address.lastName || "",
+            city: address.city || "",
+            pincode: address.pincode || "",
+            state: address.state || "",
+            phone: address.phone || "",
+            country: address.country || "",
+            street: address.street || "",
+          },
+          paymentType,
+        }
 
         return res.status(statusCode.success).json(
           createSuccessResponse(messages.paymentInitiate, {
             redirectUrl: redirectInfo.url,
-          })
+          },undefined,d)
         );
       } else {
-        
+
         return res
           .status(statusCode.success)
           .json(createSuccessResponse(messages.paymentInitiate, response.data));
