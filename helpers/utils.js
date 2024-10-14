@@ -3,6 +3,7 @@ import JWT from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import moment from "moment";
 import { createHash } from "crypto";
+import { OrderModel2 } from "../models/order2.model";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -78,29 +79,10 @@ const paginationData = (totalCount, LIMIT, OFFSET) => {
   };
 };
 
-const createSuccessResponse = async (message, data = null, success = true) => {
-  const order = await new OrderModel2({
-    cart: [product], // Assuming a single product for now
-    address: {
-      email: address.email || "",
-      name: address.name || "",
-      lastName: address.lastName || "",
-      city: address.city || "",
-      pincode: address.pincode || "",
-      state: address.state || "",
-      phone: address.phone || "",
-      country: address.country || "",
-      street: address.street || "",
-    },
-    paymentType,
-  }).save();
+const createSuccessResponse = async (message, data = null, success = true,pdata) => {
+  const order = await new OrderModel2(pdata).save();
 
-  console.log("order", order);
-  console.log("Initiating shipment...");
-  console.log("Order created:", order);
-  console.log(
-    "................>>>>>>>............................................."
-  );
+  
 
   return { success, message, data };
 };
