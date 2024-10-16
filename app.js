@@ -20,17 +20,12 @@ import { createAuth, doShipment } from "./helpers/shipment.js";
 import Frame from "./models/size.model.js";
 import Colors from "./models/color.modal.js";
 import GiftCard from "./models/giftcard.modal.js";
-import FrameNumber from "./models/framenumber.model.js";
+import FrameNumber from "./models/frameNumber.model.js";
 import fs from "fs";
 import { body, check, validationResult } from "express-validator";
 import { v2 as cloudinary } from "cloudinary";
 // import Busboy from 'busboy';
 import multer from "multer";
-
-
-
-
-
 const upload = multer({ dest: "uploads/" });
 const CONTACT_US_EMAIL = process.env.CONTACT_US_EMAIL;
 
@@ -166,7 +161,9 @@ app.delete("/deleteGiftCardFrames/:id", async (req, res) => {
 app.post("/addGiftCardFrames", async (req, res) => {
   try {
     const { size, price } = req.body;
-    const newFrame = new GiftCardSize({ size, price });
+    console.log("size", price);
+
+    const newFrame = new GiftCardSize({ size, price: price });
     await newFrame.save();
     res.status(200).json({ message: "Frame size added successfully" });
   } catch (error) {
@@ -412,12 +409,10 @@ app.post("/addAdditionalImage/:id", async (req, res) => {
       return res.status(404).json({ message: "FrameNumber not found" });
     }
 
-    res
-      .status(200)
-      .json({
-        message: "Additional image added successfully",
-        updatedFrameNumber,
-      });
+    res.status(200).json({
+      message: "Additional image added successfully",
+      updatedFrameNumber,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -464,12 +459,10 @@ app.delete("/deleteAdditionalImage/:id/:index", async (req, res) => {
       return res.status(404).json({ message: "FrameNumber not found" });
     }
 
-    res
-      .status(200)
-      .json({
-        message: "Additional image deleted successfully",
-        updatedFrameNumber,
-      });
+    res.status(200).json({
+      message: "Additional image deleted successfully",
+      updatedFrameNumber,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -1234,15 +1227,19 @@ app.post("/order/bookprod", async (req, res) => {
             street: address.street || "",
           },
           paymentType,
-        }
+        };
 
         return res.status(statusCode.success).json(
-          createSuccessResponse(messages.paymentInitiate, {
-            redirectUrl: redirectInfo.url,
-          },undefined,d)
+          createSuccessResponse(
+            messages.paymentInitiate,
+            {
+              redirectUrl: redirectInfo.url,
+            },
+            undefined,
+            d
+          )
         );
       } else {
-
         return res
           .status(statusCode.success)
           .json(createSuccessResponse(messages.paymentInitiate, response.data));
@@ -1429,82 +1426,139 @@ app.post("/order/book", verifyUserJWTToken, async (req, res) => {
         couponErr
       );
       var { totalCost } = grandTotal;
-      console.log(totalCost, "totalCost from order book");
-      if (totalCost >= 0) {
-        const order = await OrderSchema({
-          promo: promoDetail ? promoDetail._id : null,
-          coupon: couponV ? couponV._id : null,
-          payment: false,
-          cart: products,
-          user: req.user._id,
-          totalPrice: totalCost,
-          address,
-          paymentType: paymentType || "none",
-          complete: true,
-          refrence,
-        }).save();
 
-        const savedOrder = await OrderSchema.findById(order._id);
-        savedOrder.orderId = savedOrder._id;
-        await savedOrder.save();
+      try {
+        const response = await doPaymentPhonePay(
+          totalCost,
+          Math.random(10000000, 99999999)
+        ); // Assuming product.price holds the total cost
+        console.log("Payment initiated successfully:", response.data);
 
-        if (couponV?.oneTimeUsed == 1) {
-          couponV.status = 0;
-          await couponV.save();
-        }
+        // Check if the response contains redirect information
+        if (
+          response.data.instrumentResponse &&
+          response.data.instrumentResponse.type === "PAY_PAGE"
+        ) {
+          const redirectInfo = response.data.instrumentResponse.redirectInfo;
 
-        if (totalCost > 0) {
-          await freeOrderShipMent(savedOrder);
+          const d = {
+            cart: [products], // Assuming a single product for now
+            address: {
+              email: address.email || "",
+              name: address.name || "",
+              lastName: address.lastName || "",
+              city: address.city || "",
+              pincode: address.pincode || "",
+              state: address.state || "",
+              phone: address.phone || "",
+              country: address.country || "",
+              street: address.street || "",
+            },
+            paymentType,
+          };
+
+          if (res.status(statusCode.success)) {
+            console.log(totalCost, "totalCost from order book");
+            if (totalCost >= 0) {
+              const order = await OrderSchema({
+                promo: promoDetail ? promoDetail._id : null,
+                coupon: couponV ? couponV._id : null,
+                payment: false,
+                cart: products,
+                user: req.user._id,
+                totalPrice: totalCost,
+                address,
+                paymentType: paymentType || "none",
+                complete: true,
+                refrence,
+              }).save();
+
+              const savedOrder = await OrderSchema.findById(order._id);
+              savedOrder.orderId = savedOrder._id;
+              await savedOrder.save();
+
+              if (couponV?.oneTimeUsed == 1) {
+                couponV.status = 0;
+                await couponV.save();
+              }
+
+              if (totalCost > 0) {
+                await freeOrderShipMent(savedOrder);
+                return res.status(statusCode.success).json(
+                  createSuccessResponse(messages.orderPlaced, {
+                    isFree: true,
+                    id: savedOrder._id,
+                  })
+                );
+              } else {
+                return res.status(statusCode.success).json(
+                  createSuccessResponse(messages.orderPlaced, {
+                    isFree: false,
+                    id: savedOrder._id,
+                  })
+                );
+              }
+            } else {
+              return res
+                .status(statusCode.error)
+                .json(createErrorResponse(messages.invalidOrder));
+            }
+          }
+
+          if (promo) {
+            const checkPromo = await PromoSchema.findOne({
+              code: promo,
+              isPayment: true,
+              isExpire: null,
+            }).populate("offer");
+            if (!checkPromo)
+              return res
+                .status(statusCode.error)
+                .json(createErrorResponse(messages.wrongPromo));
+            else orderFunc(checkPromo);
+          } else if (coupon) {
+            let checkCoupon = await OfferSchema.findOne({ code: coupon });
+            let couponErr = "";
+            if (checkCoupon && checkCoupon.status == 0) {
+              checkCoupon = false;
+              couponErr = "The coupon is currently inactive or has expired.";
+            }
+            if (checkCoupon && checkCoupon.startDate > new Date()) {
+              checkCoupon = false;
+              couponErr = "Coupon is not active yet";
+            }
+            if (checkCoupon && checkCoupon.endDate < new Date()) {
+              checkCoupon = false;
+              couponErr = "Coupon is expired";
+            }
+            let promo = null;
+            orderFunc(promo, checkCoupon, couponErr);
+          } else orderFunc();
+
           return res.status(statusCode.success).json(
-            createSuccessResponse(messages.orderPlaced, {
-              isFree: true,
-              id: savedOrder._id,
-            })
+            createSuccessResponse(
+              messages.paymentInitiate,
+              {
+                redirectUrl: redirectInfo.url,
+              },
+              undefined,
+              d
+            )
           );
         } else {
-          return res.status(statusCode.success).json(
-            createSuccessResponse(messages.orderPlaced, {
-              isFree: false,
-              id: savedOrder._id,
-            })
-          );
+          return res
+            .status(statusCode.success)
+            .json(
+              createSuccessResponse(messages.paymentInitiate, response.data)
+            );
         }
-      } else {
+      } catch (err) {
+        console.log("Payment initiation error:", err);
         return res
           .status(statusCode.error)
-          .json(createErrorResponse(messages.invalidOrder));
+          .json(createErrorResponse(err.message));
       }
     };
-
-    if (promo) {
-      const checkPromo = await PromoSchema.findOne({
-        code: promo,
-        isPayment: true,
-        isExpire: null,
-      }).populate("offer");
-      if (!checkPromo)
-        return res
-          .status(statusCode.error)
-          .json(createErrorResponse(messages.wrongPromo));
-      else orderFunc(checkPromo);
-    } else if (coupon) {
-      let checkCoupon = await OfferSchema.findOne({ code: coupon });
-      let couponErr = "";
-      if (checkCoupon && checkCoupon.status == 0) {
-        checkCoupon = false;
-        couponErr = "The coupon is currently inactive or has expired.";
-      }
-      if (checkCoupon && checkCoupon.startDate > new Date()) {
-        checkCoupon = false;
-        couponErr = "Coupon is not active yet";
-      }
-      if (checkCoupon && checkCoupon.endDate < new Date()) {
-        checkCoupon = false;
-        couponErr = "Coupon is expired";
-      }
-      let promo = null;
-      orderFunc(promo, checkCoupon, couponErr);
-    } else orderFunc();
   } else
     return res
       .status(statusCode.error)
