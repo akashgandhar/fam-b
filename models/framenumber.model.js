@@ -12,6 +12,10 @@ const frameNumberSchema = new mongoose.Schema({
     'type': String,
 }, { timestamps: true });
 
-const FrameNumber = mongoose.model('FrameNumber', frameNumberSchema); // Create the model
+
+
+// first check if model is not already defined
+
+const FrameNumber = mongoose.models.FrameNumber || mongoose.model('FrameNumber', frameNumberSchema);
 
 export default FrameNumber; // Export the model

@@ -3,7 +3,7 @@ import JWT from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import moment from "moment";
 import { createHash } from "crypto";
-import { OrderModel2 } from "../models/order2.model";
+import  OrderModel2  from "../models/order2.model.js";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 

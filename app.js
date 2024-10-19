@@ -76,7 +76,7 @@ import { verifyUserJWTToken } from "./middleware/auth.js";
 import * as validationSchema from "./routers/v1/userRoute/validation.js";
 import validator from "./middleware/validator.js";
 import { PromoOfferSchema } from "./models/promoOffer.model.js";
-import { OrderModel2 } from "./models/order2.model.js";
+import  OrderModel2  from "./models/order2.model.js";
 import { DiscountSchema } from "./models/discount.model.js";
 import moment from "moment";
 import { invoiceLogger, orderLogger } from "./config/logger.js";

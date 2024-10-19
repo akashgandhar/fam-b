@@ -1,6 +1,6 @@
 import { DiscountSchema } from '../models/discount.model.js';
 import FrameNumber from '../models/framenumber.model.js';
-import { OrderModel2 } from '../models/order2.model.js';
+import  OrderModel2  from '../models/order2.model.js';
 
 export const calculateGrandTotal = async (products, promoOffer, coupon, couponEr) => {
     const numberOfFrames = products.length;
