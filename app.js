@@ -20,7 +20,7 @@ import { createAuth, doShipment } from "./helpers/shipment.js";
 import Frame from "./models/size.model.js";
 import Colors from "./models/color.modal.js";
 import GiftCard from "./models/giftcard.modal.js";
-import FrameNumber from "./models/frameNumber.model.js";
+import FrameNumber from "./models/framenumber.model.js";
 import fs from "fs";
 import { body, check, validationResult } from "express-validator";
 import { v2 as cloudinary } from "cloudinary";
