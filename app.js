@@ -163,7 +163,7 @@ app.post("/addGiftCardFrames", async (req, res) => {
     const { size, price } = req.body;
     console.log("size", price);
 
-    const newFrame = new GiftCardSize({ size, price: price });
+    const newFrame = new GiftCardSize({ size, price });
     await newFrame.save();
     res.status(200).json({ message: "Frame size added successfully" });
   } catch (error) {
