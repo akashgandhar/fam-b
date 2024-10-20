@@ -1610,6 +1610,9 @@ app.post("/promo/orderId", verifyUserJWTToken, async (req, res) => {
 
 app.post('/order', async (req, res) => {
 
+  console.log("frames", req.body.frames);
+  
+
   try {
 
       let merchantTransactionId = req.body.transactionId
