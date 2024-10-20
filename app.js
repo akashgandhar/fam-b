@@ -26,6 +26,10 @@ import { body, check, validationResult } from "express-validator";
 import { v2 as cloudinary } from "cloudinary";
 // import Busboy from 'busboy';
 import multer from "multer";
+
+import crypto from 'crypto';
+
+
 const upload = multer({ dest: "uploads/" });
 const CONTACT_US_EMAIL = process.env.CONTACT_US_EMAIL;
 
@@ -1611,7 +1615,7 @@ app.post('/order', async (req, res) => {
       let merchantTransactionId = req.body.transactionId
 
       const data = {
-          merchantId: process.env.live_phonePayMerchant,
+          merchantId: process.env.phonePayMerchant,
           merchantTransactionId: merchantTransactionId,
           name: req.body.name,
           amount: req.body.amount * 100,
@@ -1627,13 +1631,13 @@ app.post('/order', async (req, res) => {
       const payload = JSON.stringify(data)
       const payloadMain = Buffer.from(payload).toString('base64')
       const keyIndex = 1
-      const string = payloadMain + '/pg/v1/pay' + process.env.live_phonePaySaltKey;
+      const string = payloadMain + '/pg/v1/pay' + process.env.phonePaySaltKey;
       const sha256 = crypto.createHash('sha256').update(string).digest('hex');
       const checksum = sha256 + '###' + keyIndex;
 
 
       // const prod_URL = "https://api.phonepe.com/apis/hermes/pg/v1/pay"
-      const prod_URL = process.env.live_phonePayUrl
+      const prod_URL = process.env.phonePayUrl
 
       const options = {
           method: 'POST',
@@ -1671,18 +1675,18 @@ app.post('/order', async (req, res) => {
 app.post('/status', async (req, res) => {
 
   const merchantTransactionId = req.query.id
-  const merchantId = process.env.live_phonePayMerchant
+  const merchantId = process.env.phonePayMerchant
 
 
   const keyIndex = 1
-  const string = `/pg/v1/status/${merchantId}/${merchantTransactionId}` + process.env.live_phonePaySaltKey;
+  const string = `/pg/v1/status/${merchantId}/${merchantTransactionId}` + process.env.phonePaySaltKey;
   const sha256 = crypto.createHash('sha256').update(string).digest('hex');
   const checksum = sha256 + '###' + keyIndex;
 
 
   const options = {
       method: 'GET',
-      url: `https://api.phonepe.com/apis/hermes/pg/v1/status/${merchantId}/${merchantTransactionId}`,
+      url: `https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/status/${merchantId}/${merchantTransactionId}`,
       headers: {
           accept: 'application/json',
           'Content-Type': 'application/json',
@@ -1696,10 +1700,10 @@ app.post('/status', async (req, res) => {
 
   axios.request(options).then(function (response) {
       if (response.data.success === true) {
-          const url = 'http://localhost:5173/success'
+          const url = 'http://localhost:3000/success'
           return res.redirect(url)
       } else {
-          const url = 'http://localhost:5173/fail'
+          const url = 'http://localhost:3000/fail'
           return res.redirect(url)
       }
 

@@ -17,6 +17,7 @@
     "busboy": "^1.6.0",
     "cloudinary": "^1.41.2",
     "cors": "^2.8.5",
+    "crypto": "^1.0.1",
     "csv-writer": "^1.6.0",
     "debug": "^4.3.1",
     "dotenv": "^8.2.0",
