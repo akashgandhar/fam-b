@@ -3,7 +3,6 @@ import JWT from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import moment from "moment";
 import { createHash } from "crypto";
-import  OrderModel2  from "../models/order2.model.js";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -80,7 +79,7 @@ const paginationData = (totalCount, LIMIT, OFFSET) => {
 };
 
 const createSuccessResponse = async (message, data = null, success = true,pdata) => {
-  const order = await new OrderModel2(pdata).save();
+  // const order = await new OrderModel2(pdata).save();
 
   
 
