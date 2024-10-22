@@ -1703,6 +1703,20 @@ app.post('/status', async (req, res) => {
 
   axios.request(options).then(function (response) {
       if (response.data.success === true) {
+
+        // create Order 
+
+        const order = new OrderModel2({
+          frames: req.body.frames,
+          address: req.body.address,
+          paymentType: req.body.paymentType,
+          transactionId: req.body.transactionId
+        });
+
+
+
+
+
           const url = 'http://localhost:3000/success'
           return res.redirect(url)
       } else {
