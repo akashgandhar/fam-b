@@ -9,8 +9,6 @@ import * as validationSchema from './validation.js';
 
 import * as AdminController from '../../../controller/v1/admin.controller.js'
 
-
-
 router.post('/login', validator(validationSchema.loginValidation), asyncTryCatchMiddleware(AdminController.login))
 router.post('/forgot', validator(validationSchema.forgotValidation), asyncTryCatchMiddleware(AdminController.forgotPassword))
 router.post('/link-status', validator(validationSchema.linkStatusValidation), asyncTryCatchMiddleware(AdminController.resetPasswordLink))
@@ -54,7 +52,7 @@ router.put('/popup/edit', verifyAdminJWTToken, asyncTryCatchMiddleware(AdminCont
 router.get('/homepage/details', verifyAdminJWTToken, asyncTryCatchMiddleware(AdminController.homepageView))
 router.put('/homepage/edit', verifyAdminJWTToken, asyncTryCatchMiddleware(AdminController.homepageEdit))
 
-router.post('/testimonial/add',verifyAdminJWTToken, asyncTryCatchMiddleware(AdminController.testimonialAdd))
+router.post('/testimonial/add', validator(validationSchema.testimonialAddValidation), verifyAdminJWTToken, asyncTryCatchMiddleware(AdminController.testimonialAdd))
 router.post('/testimonial/details', validator(validationSchema.idValidation), verifyAdminJWTToken, asyncTryCatchMiddleware(AdminController.testimonialDetails))
 router.delete('/testimonial/delete', validator(validationSchema.idValidation), verifyAdminJWTToken, asyncTryCatchMiddleware(AdminController.testimonialRemove))
 router.post('/testimonial/list', validator(validationSchema.listValidation), verifyAdminJWTToken, asyncTryCatchMiddleware(AdminController.testimonialList))

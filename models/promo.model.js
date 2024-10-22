@@ -8,9 +8,7 @@ const PromoSchema = mongoose.model('promos', new mongoose.Schema({
     isExpire: dateType,
     isPayment : booleanType,
     email: emailType,
-    senderEmail : emailType,
-    mobileNumber : numberType,
-    size: stringType,
+    senderEmail : emailType
 }, { timestamps: true }))
 
 export { PromoSchema };

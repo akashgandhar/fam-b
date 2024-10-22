@@ -13,11 +13,6 @@ const upload = uploadMedia.array('file', 10);
 import * as UserController from '../../../controller/v1/user.controller.js'
 import { converter } from "../../../middleware/convertor.js";
 
-
-router.get('/getAllFrames', asyncTryCatchMiddleware(UserController.signUp))
-router.post('/updateFrame', asyncTryCatchMiddleware(UserController.signUp))
-router.post('/addFrame', asyncTryCatchMiddleware(UserController.signUp))
-
 router.post('/social-login', validator(validationSchema.socialValidation), asyncTryCatchMiddleware(UserController.signUpWithSocial))
 router.post('/login', asyncTryCatchMiddleware(UserController.signUpWithPhone))
 router.post('/verify-login', asyncTryCatchMiddleware(UserController.verifyLogin))
@@ -28,10 +23,10 @@ router.post('/upload', verifyUserJWTToken, upload, asyncTryCatchMiddleware(UserC
 
 // router.post('/order/book', verifyUserJWTToken, validator(validationSchema.orderValidation), asyncTryCatchMiddleware(UserController.placeOrder))
 
-// router.post('/order/book', verifyUserJWTToken, validator(validationSchema.orderMainValidation), asyncTryCatchMiddleware(UserController.placeOrder))
+router.post('/order/book', verifyUserJWTToken, validator(validationSchema.orderMainValidation), asyncTryCatchMiddleware(UserController.placeOrderPhonePay))
 router.post('/order/complete', asyncTryCatchMiddleware(UserController.orderCompleteController))
 
-// router.post('/order/cost', verifyUserJWTToken, validator(validationSchema.orderCheckValidation), asyncTryCatchMiddleware(UserController.checkOrderPrice))
+router.post('/order/cost', verifyUserJWTToken, validator(validationSchema.orderCheckValidation), asyncTryCatchMiddleware(UserController.checkOrderPrice))
 router.post('/order/list', verifyUserJWTToken, validator(validationSchema.orderListValidation), asyncTryCatchMiddleware(UserController.myOrders))
 router.post('/order/promo/list', verifyUserJWTToken, validator(validationSchema.giftListValidation), asyncTryCatchMiddleware(UserController.myGifts))
 router.post('/order/invoice', verifyUserJWTToken, validator(validationSchema.orderInvoiceValidation), asyncTryCatchMiddleware(UserController.orderInvoice))
@@ -47,7 +42,7 @@ router.put('/address/edit', verifyUserJWTToken, validator(validationSchema.addAd
 
 //router.post('/promo/orderId', verifyUserJWTToken, validator(validationSchema.buyPromoValidation), asyncTryCatchMiddleware(UserController.getPromoOrderId))
 
-// router.post('/promo/orderId', verifyUserJWTToken, validator(validationSchema.buyPromoGiftValidation), asyncTryCatchMiddleware(UserController.buyPromoOrderId))
+router.post('/promo/orderId', verifyUserJWTToken, validator(validationSchema.buyPromoGiftValidation), asyncTryCatchMiddleware(UserController.buyPromoOrderId))
 router.post('/promo/payment/complete', asyncTryCatchMiddleware(UserController.completePromoOrderId))
 router.post('/promo/valid', verifyUserJWTToken, validator(validationSchema.promoValidValidation), asyncTryCatchMiddleware(UserController.promoValidity))
 router.get('/promo/list', asyncTryCatchMiddleware(UserController.promoList))

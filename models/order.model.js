@@ -9,7 +9,6 @@ const OrderSchema = mongoose.model('orders', new mongoose.Schema({
         awbCode: stringType
     },
     coupon  : joinSchema('offers'),
-    orderId: stringType,
     user: joinSchema('users'),
     cart: cartType,
     promo: joinSchema('promos'),

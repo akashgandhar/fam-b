@@ -85,21 +85,8 @@ export const cartType = [{
     quantity: numberType,
     frame: stringType,
     picture: stringType,
-    original_image : stringType,
-    price: numberType,
-    size: stringType,
+    original_image : stringType
 }]
-export const cartType2 = [{
-    _id: stringType,
-    imageUrl: stringType,
-    price: numberType,
-    description: stringType,
-    type: stringType,
-    name: stringType,
-    __v: numberType
-}]
-
-
 
 export const addressType = {
     email: stringType,

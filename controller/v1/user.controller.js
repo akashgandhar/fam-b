@@ -259,7 +259,6 @@ export const placeOrderPhonePay = async (req, res) => {
                     return res.status(statusCode.success).json(createSuccessResponse(messages.orderPlaced, { isFree: true, id: order._id }))
                 }
                 else {
-                    
                     doPaymentPhonePay(totalCost, order._id)
                         .then(async (response) => {
                             return res.status(statusCode.success).json(createSuccessResponse(messages.paymentInitiate, response.data))
@@ -739,13 +738,12 @@ export const getPromoOrderId = async (req, res) => {
 
 //arun
 export const buyPromoOrderId = async (req, res) => {
-    const { id, email, mobileNumber } = req.body;
+    const { id, email } = req.body;
     const checkOffer = await PromoOfferSchema.findOne({ _id: id });
     if (checkOffer) {
         const code = generatePromoCode();
         const userEmail = req.user.email;
-
-        const promo = { code, email, senderEmail: userEmail, mobileNumber , user: req.user._id, offer: id, isPayment: 0 }
+        const promo = { code, email, senderEmail: userEmail, user: req.user._id, offer: id, isPayment: 0 }
         const data = await new PromoSchema(promo).save();
         doPaymentOnPhonePay(checkOffer.discount, data._id)
             .then(async (response) => {
@@ -895,41 +893,40 @@ export const offerList = async (req, res) => {
     return res.status(statusCode.success).json(createSuccessResponse(messages.promoFetch, promos))
 }
 
-// export const checkOrderPrice = async (req, res) => {
-//     const { promo, products, coupon } = req.body;
-//     if (products.length > 0) {
-//         const orderFunc = async (promoDetail, coupon, couponErr = '') => {
-//             const grandTotal = await calculateGrandTotal(products, promoDetail?.offer, coupon, couponErr)
-//             console.log('grandTotal', grandTotal)
-//             return res.status(statusCode.success).json(createSuccessResponse(messages.orderCheck, grandTotal))
-//         }
-//         if (promo) {
-//             const checkPromo = await PromoSchema.findOne({ code: promo, isExpire: null }).populate('offer');
-//             if (!checkPromo) return res.status(statusCode.error).json(createErrorResponse(messages.wrongPromo))
-//             else orderFunc(checkPromo);
-//         }
-//         else if (coupon) {
-//             let checkCoupon = await OfferSchema.findOne({ code: coupon });
-//             let couponErr = ''
-//             if (checkCoupon && checkCoupon.status == 0) {
-//                 checkCoupon = false;
-//                 couponErr = "The coupon is currently inactive or has expired."
-//             }
-//             if (checkCoupon && checkCoupon.startDate > new Date()) {
-//                 checkCoupon = false;
-//                 couponErr = "Coupon is not active"
-//             }
-//             if (checkCoupon && checkCoupon.endDate < new Date()) {
-//                 checkCoupon = false;
-//                 couponErr = "Coupon is expired"
-//             }
+export const checkOrderPrice = async (req, res) => {
+    const { promo, products, coupon } = req.body;
+    if (products.length > 0) {
+        const orderFunc = async (promoDetail, coupon, couponErr = '') => {
+            const grandTotal = await calculateGrandTotal(products, promoDetail?.offer, coupon, couponErr)
+            return res.status(statusCode.success).json(createSuccessResponse(messages.orderCheck, grandTotal))
+        }
+        if (promo) {
+            const checkPromo = await PromoSchema.findOne({ code: promo, isExpire: null }).populate('offer');
+            if (!checkPromo) return res.status(statusCode.error).json(createErrorResponse(messages.wrongPromo))
+            else orderFunc(checkPromo);
+        }
+        else if (coupon) {
+            let checkCoupon = await OfferSchema.findOne({ code: coupon });
+            let couponErr = ''
+            if (checkCoupon && checkCoupon.status == 0) {
+                checkCoupon = false;
+                couponErr = "The coupon is currently inactive or has expired."
+            }
+            if (checkCoupon && checkCoupon.startDate > new Date()) {
+                checkCoupon = false;
+                couponErr = "Coupon is not active"
+            }
+            if (checkCoupon && checkCoupon.endDate < new Date()) {
+                checkCoupon = false;
+                couponErr = "Coupon is expired"
+            }
 
-//             let promo = null;
-//             orderFunc(promo, checkCoupon, couponErr)
-//         }
-//         else orderFunc();
-//     } else return res.status(statusCode.error).json(createErrorResponse(messages.cartEmpty))
-// }
+            let promo = null;
+            orderFunc(promo, checkCoupon, couponErr)
+        }
+        else orderFunc();
+    } else return res.status(statusCode.error).json(createErrorResponse(messages.cartEmpty))
+}
 
 export const getBasicInfo = async (req, res) => {
     const webInfo = await ContentSchema.aggregate([

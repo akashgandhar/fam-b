@@ -1,9 +1,3 @@
 node_modules/
 public/
 logs/
-.vercel
-
-# Local Netlify folder
-.netlify
-
-
