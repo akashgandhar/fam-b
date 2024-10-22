@@ -27,8 +27,7 @@ import { v2 as cloudinary } from "cloudinary";
 // import Busboy from 'busboy';
 import multer from "multer";
 
-import crypto from 'crypto';
-
+import crypto from "crypto";
 
 const upload = multer({ dest: "uploads/" });
 const CONTACT_US_EMAIL = process.env.CONTACT_US_EMAIL;
@@ -80,7 +79,7 @@ import { verifyUserJWTToken } from "./middleware/auth.js";
 import * as validationSchema from "./routers/v1/userRoute/validation.js";
 import validator from "./middleware/validator.js";
 import { PromoOfferSchema } from "./models/promoOffer.model.js";
-import  OrderModel2  from "./models/order2.model.js";
+import OrderModel2 from "./models/order2.model.js";
 import { DiscountSchema } from "./models/discount.model.js";
 import moment from "moment";
 import { invoiceLogger, orderLogger } from "./config/logger.js";
@@ -1606,131 +1605,197 @@ app.post("/promo/orderId", verifyUserJWTToken, async (req, res) => {
       .json(createErrorResponse(messages.promoNotFound));
 });
 
-
-
-app.post('/order', async (req, res) => {
-
+app.post("/order", async (req, res) => {
   console.log("frames", req.body.frames);
-  
 
   try {
+    let merchantTransactionId = req.body.transactionId;
 
-      let merchantTransactionId = req.body.transactionId
+    const data = {
+      merchantId: process.env.phonePayMerchant,
+      merchantTransactionId: merchantTransactionId,
+      name: req.body.name,
+      amount: req.body.amount * 100,
+      redirectUrl: `http://localhost:3000/success`,
+      // redirectMode: "POST",
+      mobileNumber: req.body.phone,
+      paymentInstrument: {
+        type: "PAY_PAGE",
+      },
+    };
 
-      const data = {
-          merchantId: process.env.phonePayMerchant,
-          merchantTransactionId: merchantTransactionId,
-          name: req.body.name,
-          amount: req.body.amount * 100,
-          redirectUrl: `http://localhost:8000/status?id=${merchantTransactionId}`,
-          redirectMode: "POST",
-          mobileNumber: req.body.phone,
-          paymentInstrument: {
-              type: "PAY_PAGE"
-          }
-      }
+    const payload = JSON.stringify(data);
+    const payloadMain = Buffer.from(payload).toString("base64");
+    const keyIndex = 1;
+    const string = payloadMain + "/pg/v1/pay" + process.env.phonePaySaltKey;
+    const sha256 = crypto.createHash("sha256").update(string).digest("hex");
+    const checksum = sha256 + "###" + keyIndex;
 
+    // const prod_URL = "https://api.phonepe.com/apis/hermes/pg/v1/pay"
+    const prod_URL = process.env.phonePayUrl;
 
-      const payload = JSON.stringify(data)
-      const payloadMain = Buffer.from(payload).toString('base64')
-      const keyIndex = 1
-      const string = payloadMain + '/pg/v1/pay' + process.env.phonePaySaltKey;
-      const sha256 = crypto.createHash('sha256').update(string).digest('hex');
-      const checksum = sha256 + '###' + keyIndex;
+    const options = {
+      method: "POST",
+      url: prod_URL,
+      headers: {
+        accept: "application/json",
+        "Content-Type": "application/json",
+        "X-VERIFY": checksum,
+      },
+      data: {
+        request: payloadMain,
+      },
+    };
 
+    await axios(options)
+      .then(async function (response) {
+        // call the /status
 
-      // const prod_URL = "https://api.phonepe.com/apis/hermes/pg/v1/pay"
-      const prod_URL = process.env.phonePayUrl
+        await axios
+          .post(
+            `http://localhost:8000/status?id=${response.data.data.merchantTransactionId}`,
+            {
+              ...req.body,
+            }
+          )
+          .then(function (response) {
+            console.log(response.data);
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
 
-      const options = {
-          method: 'POST',
-          url: prod_URL,
-          headers: {
-              accept: 'application/json',
-              'Content-Type': 'application/json',
-              'X-VERIFY': checksum
-          },
-          data: {
-              request: payloadMain
-          }
-      }
-
-      await axios(options).then(function (response) {
-
-          console.log(response.data)
-          return res.json(response.data)
-
-      }).catch(function (error) {
-          console.log(error)
+        return res.json(response.data);
       })
-
-
-
-
+      .catch(function (error) {
+        console.log(error);
+      });
   } catch (error) {
-      console.log(error)
+    console.log(error);
   }
+});
 
+app.post("/status", async (req, res) => {
+  const merchantTransactionId = req.query.id;
+  const merchantId = process.env.phonePayMerchant;
 
-})
+  // console.log("dataa", req.body);
 
+  const data = req.body;
 
-app.post('/status', async (req, res) => {
-
-  const merchantTransactionId = req.query.id
-  const merchantId = process.env.phonePayMerchant
-
-
-  const keyIndex = 1
-  const string = `/pg/v1/status/${merchantId}/${merchantTransactionId}` + process.env.phonePaySaltKey;
-  const sha256 = crypto.createHash('sha256').update(string).digest('hex');
-  const checksum = sha256 + '###' + keyIndex;
-
+  const keyIndex = 1;
+  const string =
+    `/pg/v1/status/${merchantId}/${merchantTransactionId}` +
+    process.env.phonePaySaltKey;
+  const sha256 = crypto.createHash("sha256").update(string).digest("hex");
+  const checksum = sha256 + "###" + keyIndex;
 
   const options = {
-      method: 'GET',
-      url: `https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/status/${merchantId}/${merchantTransactionId}`,
-      headers: {
-          accept: 'application/json',
-          'Content-Type': 'application/json',
-          'X-VERIFY': checksum,
-          'X-MERCHANT-ID': `${merchantId}`
-      }
+    method: "GET",
+    url: `https://api-preprod.phonepe.com/apis/pg-sandbox/pg/v1/status/${merchantId}/${merchantTransactionId}`,
+    headers: {
+      accept: "application/json",
+      "Content-Type": "application/json",
+      "X-VERIFY": checksum,
+      "X-MERCHANT-ID": `${merchantId}`,
+    },
+  };
 
-
-  }
-
-
-  axios.request(options).then(function (response) {
+  axios
+    .request(options)
+    .then(function (response) {
       if (response.data.success === true) {
+        // create  ship rocket shipment
 
-        // create Order 
+        const orderPayload = {
+          order_id: data?.MUID,
+          order_date: new Date().toISOString().slice(0, 16).replace("T", " "),
+          pickup_location: "Home-2",
+          company_name: "Family Vibes",
+          billing_customer_name: data?.address?.name,
+          billing_last_name: data?.address?.lastName,
+          billing_address: data?.address?.street,
+          billing_city: data?.address?.city,
+          billing_pincode: data?.address?.pincode,
+          billing_state: data?.address?.state,
+          billing_country: data?.address?.country,
+          billing_email: data?.address?.email,
+          billing_phone: data?.address?.phone,
+          shipping_is_billing: 1,
+          order_items: data?.frames.map((item, index) => {
+            return {
+              name: `frame-${index}`,
+              sku: `frame-${index}`,
+              units: 1,
+              selling_price: 300,
+              discount: 0,
+            };
+          }),
+          payment_method: "Prepaid",
+          sub_total: data?.frames.length * 300,
+          length: 20,
+          breadth: 20,
+          height: 2.5 * data?.frames.length,
+          weight: 100 * data?.frames.length,
+        };
 
-        const order = new OrderModel2({
-          frames: req.body.frames,
-          address: req.body.address,
-          paymentType: req.body.paymentType,
-          transactionId: req.body.transactionId
+        console.log("orderPayload", orderPayload);
+        
+
+        doShipment(orderPayload).then(async (shipment) => {
+          console.log("shipment", shipment, data?.address?.pincode)
+          if (shipment.success) {
+            // create Order in DB\
+
+            const newOrderDynamicSchema = new mongoose.Schema({
+              data: { type: Object },
+            });
+
+            const NewOrderModel = mongoose.model(
+              "NewOrderModel",
+              newOrderDynamicSchema
+            );
+
+            const order = new NewOrderModel({
+              data: {
+                ...req.body,
+                shiprocket: {
+                  orderId: shipment?.data?.response?.data?.order_id,
+                  shipmentId: shipment?.data?.response?.data?.shipment_id,
+                  awbCode: shipment?.data?.response?.data?.awb_code,
+                },
+              },
+            });
+
+            order
+              .save()
+              .then((data) => {
+                console.log("data", data);
+              })
+              .catch((err) => {
+                console.log("err", err);
+              });
+          }
         });
 
+        // create Order
+        // const order = new OrderModel2({
+        //   data: { ...req.body },
+        // });
 
-
-
-
-          const url = 'http://localhost:3000/success'
-          return res.redirect(url)
+        const url = "http://localhost:3000/success";
+        return res.redirect(url);
       } else {
-          const url = 'http://localhost:3000/fail'
-          return res.redirect(url)
+        const url = "http://localhost:3000/fail";
+        console.log("err");
+
+        return res.redirect(url);
       }
-
-  }).catch(function (error) {
-      console.log(error)
-  })
-
-
-})
-
+    })
+    .catch(function (error) {
+      console.log("errr", error);
+    });
+});
 
 server.listen(PORT, () => {
   console.log(`Server is listing on PORT ${PORT}`);

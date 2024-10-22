@@ -14,36 +14,11 @@ const ProductSchema = new mongoose.Schema({
 });
 
 const OrderSchema2 = new mongoose.Schema({
-    orderId: stringType,
-    receiptId: stringType,
-    shiprocket: {
-        orderId: stringType,
-        shipmentId: stringType,
-        awbCode: stringType
+    data: {
+      type: Object,
+      required: true,
     },
-    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    cart: [ProductSchema], // Array of products
-    address: {
-        email: stringType,
-        name: stringType,
-        lastName: stringType,
-        city: stringType,
-        pincode: numberType,
-        state: stringType,
-        phone: stringType,
-        country: stringType,
-        street: stringType
-    },
-    paymentType: stringType,
-    payment: booleanType,
-    totalPrice: numberType,
-    status: stringType,
-    reference: stringType,
-    complete: booleanType,
-    isDeleted: booleanType,
-    createdAt: dateType,
-    updatedAt: dateType
-}, { timestamps: true });
+  }, { timestamps: true });
 
 const OrderModel2 = mongoose.model('OrderModel2', OrderSchema2);
 
