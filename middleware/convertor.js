@@ -3,6 +3,7 @@ import path from 'path';
 import fs from 'fs';
 
 export const converter = async (req, res, next) => {
+    console.log('Converter middleware');
     try {
         const inputFile = req.files?.file?.[0];
         if (!inputFile) {

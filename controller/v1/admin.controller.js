@@ -1162,6 +1162,8 @@ export const export_order_pdf = async (req, res) => {
 //prince
 
 export const sendFile = async (req, res) => {
+    console.log('sendFile', req.query);
+    
     try {
         const imageName = req.query.imageName;
 
@@ -1170,7 +1172,7 @@ export const sendFile = async (req, res) => {
         }
         let customer = req.headers.customer
 
-        const filePath = path.join(process.cwd(), 'public', customer, imageName);
+        const filePath = path.join(process.cwd(), 'uploads', imageName);
         if (!filePath) {
             return res.status(400).send('Image path is missing in the root.');
 
