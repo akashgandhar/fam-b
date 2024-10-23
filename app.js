@@ -15,9 +15,7 @@ import fs from "fs";
 
 const PORT = process.env.PORT;
 const app = express();
-app.use(cors({
-    origin: ['https://familyvibes.in', 'https://admin.familyvibes.in'] // Replace with the allowed domain
-  }));
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static("public"))
